@@ -141,9 +141,18 @@ module Firetail
 
     def send_to_backend(data)
       #Firetail.logger.debug datas.to_json
+      # Parse it as URI
       uri = URI(@url)
-      req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
-      req.body = data.to_json
+      # Create a new request
+      req = Net::HTTP::Post.new(uri, 
+                                initheader = {
+                                  'Content-Type' => 'text/plain',
+                                  'x-api-key' => @api_key,
+                                  'x-ps-api-key': @token
+                                })
+ 
+      req.body = "\n#{data.to_json}"
+      # send the request
       res = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(req)
       end
