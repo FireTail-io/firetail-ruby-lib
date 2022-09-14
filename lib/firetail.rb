@@ -103,7 +103,7 @@ module Firetail
 	resp: {
           status_code: status,
 	  content_len: res_headers['Content-Length'] ? res_headers['Content-Length'] : "No content length",
-	  content_enc: res_headers['Content-Encoding'] ? res_headers['Content-Length'] : "No content encoding",
+	  content_enc: res_headers['Content-Encoding'] ? res_headers['Content-Encoding'] : "No content encoding",
 	  body: body.body,
           headers: res_headers.to_s,
 	  content_type: res_headers['Content-Type'], 
