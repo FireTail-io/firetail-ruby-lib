@@ -8,6 +8,10 @@ module Firetail
         template "firetail.yml", File.join("config", "firetail.yml")
         application "config.middleware.use Firetail::Run"
       end
+
+      def show_readme
+        readme "README" if behavior == :invoke
+      end
     end
   end
 end

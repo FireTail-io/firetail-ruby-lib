@@ -1,0 +1,12 @@
+====================================================================================
+
+Thank you for installing Firetail!
+
+Before you start using firetail, please edit the file in "config/firetail.yml"
+with your API Key, Token and URL first before running your Rails app.
+
+The middleware is already configured in "config/application.rb" (you can check that)
+
+Happy coding!
+
+- From the team at Firetail

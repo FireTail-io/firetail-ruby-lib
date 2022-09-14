@@ -25,9 +25,6 @@ module Firetail
           # error message if firetail is not installed
           puts ""
           puts "Please run 'rails generate firetail:install' first"
-          puts "After running the command above, please edit"
-          puts "the file in 'config/firetail.yml' with your api key"
-          puts "URL and token"
           puts ""
           # initial copy of template, will improve this later 
           FileUtils.cp(
