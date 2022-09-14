@@ -18,11 +18,29 @@ module Firetail
 
       # Rails
       if defined?(Rails)
-	default_location = File.join(Rails.root, "config/firetail.yml")
-        config = YAML.load_file(default_location)
+        begin
+          default_location = File.join(Rails.root, "config/firetail.yml")
+          config = YAML.load_file(default_location)
+        rescue Errno::ENOENT
+          # error message if firetail is not installed
+          puts ""
+          puts "Please run 'rails generate firetail:install' first"
+          puts "After running the command above, please edit"
+          puts "the file in 'config/firetail.yml' with your api key"
+          puts "URL and token"
+          puts ""
+          # initial copy of template, will improve this later 
+          FileUtils.cp(
+            File.join(
+              File.expand_path(File.dirname(__FILE__)),'generators/firetail/install/templates/firetail.yml'),
+                               File.join(Rails.root, "config/firetail.yml")
+          )
+          exit(1)
+        end
       else # other frameworks
         config = YAML.load_file("firetail.yml")
       end
+        
       raise Error.new "Token is missing from configuration" if config['token'].nil?
       raise Error.new "API Key is missing from configuration"  if config['api_key'].nil?
 
@@ -97,8 +115,8 @@ module Firetail
 	  fPath: req_path,
 	  args: "arguments",
 	  ip: req_ip,
-	  path_params: req_query_string,
-	  user_agent: req_user_agent
+	  pathParams: req_query_string,
+	  user_agent: req_user_agent # maybe need this?
 	},
 	resp: {
           status_code: status,
@@ -107,8 +125,8 @@ module Firetail
 	  body: body.body,
           headers: res_headers.to_s,
 	  content_type: res_headers['Content-Type'], 
-	  error_type: exception&.class&.name,
-          error_message: exception&.message
+	  error_type: exception&.class&.name, # maybe need this? 
+          error_message: exception&.message # maybe need this? can be removed
 	}
       })
 
