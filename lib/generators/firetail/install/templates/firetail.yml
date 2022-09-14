@@ -1,3 +1,3 @@
-api_key: abc
-token: abc
-url: http://localhost
+api_key: yourfiretailapikey
+token: yourfiretailtoken
+url: https://url.of.firetail.server.com
