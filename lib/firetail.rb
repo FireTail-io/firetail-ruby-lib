@@ -83,32 +83,32 @@ module Firetail
        .collect {|key, val| "#{key}: #{val}<br>"}
        .sort
 
-      # add to array of data for batching up
+      # add to array of data objects for batching up
       @request_data.push({
 	version: "1.1",
 	dateCreated: Time.now.utc.to_i,
 	execution_time: time_spent,
 	req: {
  	  httpProtocol: req_http_version,
-	  headers: req_headers.to_s,
+	  headers: req_headers.to_s, # headers array to string
 	  path: req_path,
 	  method: req_method,
           oPath: req_path,
 	  fPath: req_path,
-	  args: "arguments",
+	  args: req_query_string,
 	  ip: req_ip,
-	  path_params: req_query_string,
-	  user_agent: req_user_agent
+	  pathParams: req_query_string,
+	  user_agent: req_user_agent # maybe not needed
 	},
 	resp: {
           status_code: status,
 	  content_len: res_headers['Content-Length'] ? res_headers['Content-Length'] : "No content length",
 	  content_enc: res_headers['Content-Encoding'] ? res_headers['Content-Encoding'] : "No content encoding",
 	  body: body.body,
-          headers: res_headers.to_s,
+          headers: res_headers.to_s, # headers array to string
 	  content_type: res_headers['Content-Type'], 
-	  error_type: exception&.class&.name,
-          error_message: exception&.message
+	  error_type: exception&.class&.name, # maybe not needed. Just in case
+          error_message: exception&.message # maybe not need. Just in case
 	}
       })
 
