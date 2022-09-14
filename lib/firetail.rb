@@ -18,25 +18,11 @@ module Firetail
 
       # Rails
       if defined?(Rails)
-        begin
-          default_location = File.join(Rails.root, "config/firetail.yml")
-          config = YAML.load_file(default_location)
-        rescue Errno::ENOENT
-          # error message if firetail is not installed
-          puts ""
-          puts ""
-          puts "Please run 'rails generate firetail:install' first"
-          puts "After running the command above, please edit"
-          puts "the file in 'config/firetail.yml' with your api key"
-          puts "URL and token"
-          puts ""
-          puts ""
-          exit(1)
-        end
+	default_location = File.join(Rails.root, "config/firetail.yml")
+        config = YAML.load_file(default_location)
       else # other frameworks
         config = YAML.load_file("firetail.yml")
       end
-
       raise Error.new "Token is missing from configuration" if config['token'].nil?
       raise Error.new "API Key is missing from configuration"  if config['api_key'].nil?
 
