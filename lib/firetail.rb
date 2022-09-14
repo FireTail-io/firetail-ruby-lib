@@ -90,11 +90,11 @@ module Firetail
 	execution_time: time_spent,
 	req: {
  	  httpProtocol: req_http_version,
-	  headers: req_headers,
+	  headers: req_headers.to_s,
 	  path: req_path,
 	  method: req_method,
-          oPath: "/test/path",
-	  fPath: "/test/path",
+          oPath: req_path,
+	  fPath: req_path,
 	  args: "arguments",
 	  ip: req_ip,
 	  path_params: req_query_string,
@@ -144,15 +144,14 @@ module Firetail
       # Parse it as URI
       uri = URI(@url)
       # Create a new request
-      req = Net::HTTP::Post.new(uri, 
-                                initheader = {
-                                  'Content-Type' => 'text/plain',
-                                  'x-api-key' => @api_key,
-                                  'x-ps-api-key': @token
-                                })
+      req = Net::HTTP::Post.new(uri, {
+                                       'Content-Type': 'text/plain',
+                                       'x-api-key': @api_key,
+                                       'x-ps-api-key': @token
+                               })
  
       req.body = "\n#{data.to_json}"
-      # send the request
+      # Send the request
       res = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(req)
       end
