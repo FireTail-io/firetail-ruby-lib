@@ -15,8 +15,12 @@ module Firetail
       @app = app
       @request_data ||= [] # request data in stored in array memory
       @init_time ||= Time.now # initialize time
-
-      # Rails
+    end
+ 
+    def call(env)
+      # This block initialises the configuration and checks
+      # sets the values for certain necessary configuration
+      # If it is Rails
       if defined?(Rails)
         begin
           default_location = File.join(Rails.root, "config/firetail.yml")
@@ -26,20 +30,14 @@ module Firetail
           puts ""
           puts "Please run 'rails generate firetail:install' first"
           puts ""
-          # initial copy of template, will improve this later 
-          FileUtils.cp(
-            File.join(
-              File.expand_path(File.dirname(__FILE__)),'generators/firetail/install/templates/firetail.yml'),
-                               File.join(Rails.root, "config/firetail.yml")
-          )
-          exit(1)
         end
       else # other frameworks
         config = YAML.load_file("firetail.yml")
       end
-        
-      raise Error.new "Token is missing from configuration" if config['token'].nil?
-      raise Error.new "API Key is missing from configuration"  if config['api_key'].nil?
+
+      raise Error.new "Please run 'rails generate firetail:install' first" if config.nil?
+      raise Error.new "Token is missing from firetail.yml configuration" if config['token'].nil?
+      raise Error.new "API Key is missing from firetail.yml configuration"  if config['api_key'].nil?
 
       @token              = config['token']
       @api_key            = config['api_key']
@@ -48,9 +46,9 @@ module Firetail
       @network_timeout    = config['network_timeout'] ? config['network_timeout'] : 10
       @number_of_retries  = config['number_of_retries'] ? config['number_of_retries'] : 4
       @retry_timeout      = config['retry_timeout'] ? config['retry_timeout'] : 2
-    end
- 
-    def call(env)
+      # End of configuration initialization
+
+      # Gets the rack middleware requests
       request = Rack::Request.new(env)
       started_on = Time.now
       begin
