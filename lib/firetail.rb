@@ -4,6 +4,7 @@ require 'objspace'
 require 'yaml'
 require 'json'
 require 'net/http'
+require 'case_sensitive_headers'
 
 module Firetail
   class Error < StandardError; end
@@ -117,7 +118,7 @@ module Firetail
           status_code: status,
 	  content_len: res_headers['Content-Length'] ? res_headers['Content-Length'] : "No content length",
 	  content_enc: res_headers['Content-Encoding'] ? res_headers['Content-Encoding'] : "No content encoding",
-	  body: body.body,
+	  body: body ? body.body : body[0],
           headers: res_headers.to_s,
 	  content_type: res_headers['Content-Type'], 
 	  error_type: exception&.class&.name, # maybe need this? 
@@ -142,9 +143,17 @@ module Firetail
       if @request_data.length >= 5 || duration > 120
         #Firetail.logger.debug "request data #{@request_data.length}"
         # send data to backend
-        send_to_backend(@request_data)
+	payload = "\n" # begin of data will have a newline
+	@request_data.each do |data|
+          # append string in-place
+ 	  payload << "#{data.to_s}\n"
+        end
 
-	# reset back the conditions
+	#puts "Our data: #{payload}"
+        send_to_backend(payload)
+
+	# reset back tohe conditions
+	payload = nil
 	@request_data = []
 	@init_time = Time.now
       end
@@ -152,22 +161,30 @@ module Firetail
       Firetail.logger.error(exception.message)
     end
 
-    def send_to_backend(data)
+    def send_to_backend(payload)
       #Firetail.logger.debug datas.to_json
       # Parse it as URI
       uri = URI(@url)
-      # Create a new request
-      req = Net::HTTP::Post.new(uri, {
-                                       'Content-Type': 'text/plain',
-                                       'x-api-key': @api_key,
-                                       'x-ps-api-key': @token
-                               })
- 
-      req.body = "\n#{data.to_json}"
+
       # Send the request
-      res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-        http.request(req)
-      end
+      http = Net::HTTP.new(uri.hostname, uri.port)
+      #http.set_debug_output($stdout)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+      # Create a new request
+      req = CustomPost.new(uri.path,
+        {
+          'Content-Type': 'text/plain',
+          'x-api-key': @api_key,
+          'X-FT-API-KEY': @token
+        })
+
+      #req.body = "{\"version\": \"1.1\", \"dateCreated\": 1663763942581, \"execution_time\": 3.74, \"req\": {}, \"resp\": {}}"
+      req.body = '{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {"httpProtocol": "HTTP/1.1", "url": "http://localhost:8080/healthz", "headers": {"Authorization": "sha1:a5784dd224ec450023d4b8db2028921430a5d8b9", "User-Agent": "PostmanRuntime/7.29.2", "Accept": "*/*", "Postman-Token": "4d98da30-ad0f-40ef-9ef1-6e6a39323d4a", "Host": "localhost:8080", "Accept-Encoding": "gzip, deflate, br", "Connection": "keep-alive"}, "path": "/healthz", "method": "GET", "oPath": "/healthz", "fPath": "/healthz?", "args": {}, "ip": "127.0.0.1", "pathParams": {}}, "resp": {"status_code": 200, "content_len": 21, "content_enc": null, "body": {"status": "UP"}, "headers": {"Content-Type": "application/json", "Content-Length": "21"}, "content_type": "application/json"}, "oauth": {"sub": "12"}}'
+
+      res = http.request(req)
+      
       Firetail.logger.debug "response from firetail: #{res}"
     end
   end
