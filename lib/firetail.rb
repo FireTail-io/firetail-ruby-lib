@@ -42,7 +42,7 @@ module Firetail
 
       @token              = config['token']
       @api_key            = config['api_key']
-      @url                = config['url'] ? config['url'] : "https://ingest.eu-west-1.dev.platform.pointsec.io/ingest/request" # default goes to dev
+      @url                = config['url'] ? config['url'] : "https://ingest.eu-west-1.dev.firetail.app/ingest/request" # default goes to dev
       @log_drains_timeout = config['log_drains_timeout'] ? config['log_drains_timeout'] : 5
       @network_timeout    = config['network_timeout'] ? config['network_timeout'] : 10
       @number_of_retries  = config['number_of_retries'] ? config['number_of_retries'] : 4
