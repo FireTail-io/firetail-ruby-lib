@@ -4,7 +4,8 @@ require 'objspace'
 require 'yaml'
 require 'json'
 require 'net/http'
-require 'case_sensitive_headers'
+require 'case_sensitive_headers' # a hack because firetail API headers is case-sensitive
+require "async"
 
 module Firetail
   class Error < StandardError; end
@@ -14,7 +15,7 @@ module Firetail
 
     def initialize app
       @app = app
-      @request_data ||= [] # request data in stored in array memory
+      @reqres ||= [] # request data in stored in array memory
       @init_time ||= Time.now # initialize time
     end
  
@@ -97,11 +98,14 @@ module Firetail
        .collect {|key, val| "#{key}: #{val}<br>"}
        .sort
 
-      # add to array of data for batching up
-      @request_data.push({
+      # add the request and response data 
+      # to array of data for batching up
+      @reqres.push({
 	version: "1.1",
 	dateCreated: Time.now.utc.to_i,
 	execution_time: time_spent,
+	#dateCreated: 1663763942581,
+	#execution_time: 3.74,
 	req: {
  	  httpProtocol: req_http_version,
 	  headers: req_headers.to_s,
@@ -134,27 +138,33 @@ module Firetail
       #Firetail.logger.debug "size in bytes #{ObjectSpace.memsize_of(@request_data.to_s)}"
       #request data size in bytes
       #request_data_size = ObjectSpace.memsize_of(@request_data.to_s)
-      # It is difficult to calculate the object size in bytes, seems to not return the accurate
-      # values
+      # It is difficult to calculate the object size in bytes, 
+      # seems to not return the accurate values
 
       # This will send the data we need in batches of 5 requests or when it is more than 120 seconds
       # if there are more than 5 requests or is more than
       # 2 minutes, then send to backend - this is for testing
-      if @request_data.length >= 5 || duration > 120
+      if @reqres.length >= 5 || duration > 120
         #Firetail.logger.debug "request data #{@request_data.length}"
-        # send data to backend
-	payload = "\n" # begin of data will have a newline
-	@request_data.each do |data|
+	payload = "" # begin of data will have a newline
+	@reqres.each do |data|
           # append string in-place
- 	  payload << "#{data.to_s}\n"
+ 	  json = data.to_json
+	  payload = json + "\n"
         end
 
 	#puts "Our data: #{payload}"
-        send_to_backend(payload)
+	# send the data to backend API
+	# This is an async task
+	Async do |task|
+          task.async do
+            send_to_backend(payload)
+          end
+	end
 
 	# reset back tohe conditions
 	payload = nil
-	@request_data = []
+	@reqres = []
 	@init_time = Time.now
       end
     rescue Exception => exception
@@ -174,14 +184,16 @@ module Firetail
 
       # Create a new request
       req = CustomPost.new(uri.path,
-        {
-          'Content-Type': 'text/plain',
-          'x-api-key': @api_key,
-          'X-FT-API-KEY': @token
-        })
+      {
+        'Content-Type': 'text/plain',
+        'x-api-key': @api_key,
+        'X-FT-API-KEY': @token
+      })
 
+      # debug code
       #req.body = "{\"version\": \"1.1\", \"dateCreated\": 1663763942581, \"execution_time\": 3.74, \"req\": {}, \"resp\": {}}"
-      req.body = '{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {"httpProtocol": "HTTP/1.1", "url": "http://localhost:8080/healthz", "headers": {"Authorization": "sha1:a5784dd224ec450023d4b8db2028921430a5d8b9", "User-Agent": "PostmanRuntime/7.29.2", "Accept": "*/*", "Postman-Token": "4d98da30-ad0f-40ef-9ef1-6e6a39323d4a", "Host": "localhost:8080", "Accept-Encoding": "gzip, deflate, br", "Connection": "keep-alive"}, "path": "/healthz", "method": "GET", "oPath": "/healthz", "fPath": "/healthz?", "args": {}, "ip": "127.0.0.1", "pathParams": {}}, "resp": {"status_code": 200, "content_len": 21, "content_enc": null, "body": {"status": "UP"}, "headers": {"Content-Type": "application/json", "Content-Length": "21"}, "content_type": "application/json"}, "oauth": {"sub": "12"}}'
+      #req.body = '{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {}, "resp": {}}\n{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {}, "resp": {}}'
+      req.body = payload
 
       res = http.request(req)
       
