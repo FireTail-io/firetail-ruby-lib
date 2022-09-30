@@ -176,7 +176,7 @@ module Firetail
       # Parse it as URI
       uri = URI(@url)
 
-      # Send the request
+      # Create a new request
       http = Net::HTTP.new(uri.hostname, uri.port)
       #http.set_debug_output($stdout)
       http.use_ssl = true
@@ -195,6 +195,7 @@ module Firetail
       #req.body = '{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {}, "resp": {}}\n{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {}, "resp": {}}'
       req.body = payload
 
+      # Send the request
       res = http.request(req)
       
       Firetail.logger.debug "response from firetail: #{res}"
