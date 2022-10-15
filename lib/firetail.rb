@@ -113,15 +113,15 @@ module Firetail
 	  method: req_method,
           oPath: req_path,
 	  fPath: req_path,
-	  args: "arguments",
+	  args: req_query_string,
 	  ip: req_ip,
-	  pathParams: req_query_string,
+	  pathParams: req_path,
 	  user_agent: req_user_agent # maybe need this?
 	},
 	resp: {
           status_code: status,
-	  content_len: res_headers['Content-Length'] ? res_headers['Content-Length'] : "No content length",
-	  content_enc: res_headers['Content-Encoding'] ? res_headers['Content-Encoding'] : "No content encoding",
+	  content_len: res_headers['Content-Length'],
+	  content_enc: res_headers['Content-Encoding'],
 	  body: body ? body.body : body[0],
           headers: res_headers.to_s,
 	  content_type: res_headers['Content-Type'], 
@@ -133,7 +133,8 @@ module Firetail
       # the time we calculate if request that is
       # buffered max is 120 seconds
       current_time = Time.now
-      duration = current_time - @init_time
+      # duration in millseconds
+      duration = (current_time - @init_time) * 1000.0
 
       #Firetail.logger.debug "size in bytes #{ObjectSpace.memsize_of(@request_data.to_s)}"
       #request data size in bytes
