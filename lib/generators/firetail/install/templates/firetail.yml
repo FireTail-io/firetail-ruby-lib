@@ -1,3 +1,3 @@
-api_key: yourfiretailapikey
-token: yourfiretailtoken
-url: https://ingest.eu-west-1.dev.firetail.app/ingest/request
+api_key: ENV.fetch("FIRETAIL_API_KEY")
+token: ENV.fetch("FIRETAIL_TOKEN")
+url: ENV.fetch("FIRETAIL_URL")

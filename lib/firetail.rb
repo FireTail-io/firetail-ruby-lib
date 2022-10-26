@@ -54,10 +54,10 @@ module Firetail
       request = Rack::Request.new(env)
       started_on = Time.now
       begin
-        status, res_headers, body = response = @app.call(env)
-        log(env, response, status, res_headers, body, started_on, Time.now)
+        status, client_response_headers, body = response = @app.call(env)
+        log(env, response, status, client_response_headers, body, started_on, Time.now)
       rescue Exception => exception
-        log(env, response, status, res_headers, body, started_on, Time.now, exception)
+        log(env, response, status, client_response_headers, body, started_on, Time.now, exception)
         raise exception
       end
 
@@ -67,33 +67,33 @@ module Firetail
     def log(env,
             response,
             status,
-            res_headers,
+            client_response_headers,
             body,
             started_on,
             ended_on,
             exception = nil)
 
       # request values
-      req_url               = env['REQUEST_URI']
-      req_path              = env['PATH_INFO']
-      time_spent            = ended_on - started_on
-      req_user_agent        = env['HTTP_USER_AGENT']
-      req_ip                = defined?(Rails) ? env['action_dispatch.remote_ip'].calculate_ip : env['REMOTE_ADDR']
-      req_method            = env['REQUEST_METHOD']
-      req_http_host         = env['HTTP_HOST']
-      req_http_version      = env['HTTP_VERSION']
-      req_http_encoding     = env['HTTP_ACCEPT_ENCODING']
-      req_http_accept       = env['HTTP_ACCEPT']
-      req_query_string      = env['QUERY_STRING']
-      req_path              = env['REQUEST_PATH']
-      req_uri               = env['REQUEST_URI']
-      req_server_software   = env['SERVER_SOFTWARE']
-      req_server_port       = env['SERVER_PORT']
-      req_gateway_interface = env['GATEWAY_INTERFACE']
-      req_http_connection   = env['HTTP_CONNECTION']
+      request_url               = env['REQUEST_URI']
+      request_path              = env['PATH_INFO']
+      time_spent                = ended_on - started_on
+      request_user_agent        = env['HTTP_USER_AGENT']
+      request_ip                = defined?(Rails) ? env['action_dispatch.remote_ip'].calculate_ip : env['REMOTE_ADDR']
+      request_method            = env['REQUEST_METHOD']
+      request_http_host         = env['HTTP_HOST']
+      request_http_version      = env['HTTP_VERSION']
+      request_http_encoding     = env['HTTP_ACCEPT_ENCODING']
+      request_http_accept       = env['HTTP_ACCEPT']
+      request_query_string      = env['QUERY_STRING']
+      request_path              = env['REQUEST_PATH']
+      request_uri               = env['REQUEST_URI']
+      request_server_software   = env['SERVER_SOFTWARE']
+      request_server_port       = env['SERVER_PORT']
+      request_gateway_interface = env['GATEWAY_INTERFACE']
+      request_http_connection   = env['HTTP_CONNECTION']
 
       # get the request "HTTP_" headers
-      req_headers = env.select {|k,v| k.start_with? 'HTTP_'}
+      request_headers = env.select {|k,v| k.start_with? 'HTTP_'}
        .collect {|key, val| [key.sub(/^HTTP_/, ''), val]}
        .collect {|key, val| "#{key}: #{val}<br>"}
        .sort
@@ -107,24 +107,24 @@ module Firetail
 	#dateCreated: 1663763942581,
 	#execution_time: 3.74,
 	req: {
- 	  httpProtocol: req_http_version,
-	  headers: req_headers.to_s,
-	  path: req_path,
-	  method: req_method,
-          oPath: req_path,
-	  fPath: req_path,
-	  args: req_query_string,
-	  ip: req_ip,
-	  pathParams: req_path,
-	  user_agent: req_user_agent # maybe need this?
+ 	  httpProtocol: request_http_version,
+	  headers: request_headers.to_s,
+	  path: request_path,
+	  method: request_method,
+          oPath: request_path,
+	  fPath: request_path,
+	  args: request_query_string,
+	  ip: request_ip,
+	  pathParams: request_path,
+	  user_agent: request_user_agent # maybe need this?
 	},
 	resp: {
           status_code: status,
-	  content_len: res_headers['Content-Length'],
-	  content_enc: res_headers['Content-Encoding'],
+	  content_len: client_response_headers['Content-Length'],
+	  content_enc: client_response_headers['Content-Encoding'],
 	  body: body ? body.body : body[0],
-          headers: res_headers.to_s,
-	  content_type: res_headers['Content-Type'], 
+          headers: client_response_headers.to_s,
+	  content_type: client_response_headers['Content-Type'], 
 	  error_type: exception&.class&.name, # maybe need this? 
           error_message: exception&.message # maybe need this? can be removed
 	}
@@ -154,7 +154,7 @@ module Firetail
 	  payload = json + "\n"
         end
 
-	#puts "Our data: #{payload}"
+	puts "Our data: #{payload}"
 	# send the data to backend API
 	# This is an async task
 	Async do |task|
@@ -179,7 +179,7 @@ module Firetail
 
       # Send the request
       http = Net::HTTP.new(uri.hostname, uri.port)
-      #http.set_debug_output($stdout)
+      http.set_debug_output($stdout)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
@@ -191,13 +191,8 @@ module Firetail
         'X-FT-API-KEY': @token
       })
 
-      # debug code
-      #req.body = "{\"version\": \"1.1\", \"dateCreated\": 1663763942581, \"execution_time\": 3.74, \"req\": {}, \"resp\": {}}"
-      #req.body = '{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {}, "resp": {}}\n{"version": "1.1", "dateCreated": 1663763942581, "execution_time": 3.74, "req": {}, "resp": {}}'
       req.body = payload
-
       res = http.request(req)
-      
       Firetail.logger.debug "response from firetail: #{res}"
     end
   end
