@@ -52,10 +52,10 @@ module Firetail
       @request = Rack::Request.new(env)
       started_on = Time.now
       begin
-        status, client_response_headers, body = response = @app.call(env)
-	log(env, response, status, client_response_headers, body, started_on, Time.now)
+        status, client_headers, body = response = @app.call(env)
+	log(env, status, body, started_on, Time.now)
       rescue Exception => exception
-	      log(env, response, status, client_response_headers, body, started_on, Time.now, exception)
+	      log(env, status, body, started_on, Time.now, exception)
         raise exception
       end
 
@@ -63,37 +63,29 @@ module Firetail
     end
 
     def log(env,
-            response,
-            status,
-            client_response_headers,
-            body,
+	    status,
+	    body,
             started_on,
-            ended_on,
+	    ended_on,
             exception = nil)
 
       # request values
-      request_url               = env['REQUEST_URI']
-      request_path              = env['PATH_INFO']
       time_spent                = ended_on - started_on
-      request_user_agent        = env['HTTP_USER_AGENT']
       request_ip                = defined?(Rails) ? env['action_dispatch.remote_ip'].calculate_ip : env['REMOTE_ADDR']
       request_method            = env['REQUEST_METHOD']
-      request_http_host         = env['HTTP_HOST']
-      request_http_version      = env['HTTP_VERSION']
-      request_query_string      = env['QUERY_STRING']
       request_path              = env['REQUEST_PATH']
-      request_uri               = env['REQUEST_URI']
+      request_http_version      = env['HTTP_VERSION']
 
       # select those with "HTTP_" prefix, these are request headers
       request_headers = env.select {|key,val| key.start_with? 'HTTP_' } # find HTTP_ prefixes, these are requests only
 	                .collect {|key, val| { "#{key.sub(/^HTTP_/, '')}": [val] }} # remove HTTP_ prefix
-	                .reduce({}, :merge)  # flatten from [{key:val},{key2: val2}] to {key: val, key2: val2}
+	                .reduce({}, :merge)  # reduce from [{key:val},{key2: val2}] to {key: val, key2: val2}
 
       # do the inverse of the above and get rack specific keys
       response_headers = env.select {|key,val| !key.start_with? 'HTTP_' } # only keys with no HTTP_ prefix
 	                 .select {|key, val| key =~ /^[A-Z._]*$/} # select keys with uppercase and underline
                          .map {|key, val| { "#{key}": [val] }} # map to firetail api format
-                         .reduce({}, :merge) # flatten from [{key:val},{key2: val2}] to {key: val, key2: val2}
+                         .reduce({}, :merge) # reduce from [{key:val},{key2: val2}] to {key: val, key2: val2}
 
       # add the request and response data 
       # to array of data for batching up
@@ -108,10 +100,10 @@ module Firetail
 	  body: @request.body.read,
 	  ip: request_ip,
 	  resource: request_path,
-	  uri: "#{@request.url}"
+	  uri: @request.url
 	},
 	response: {
-          statusCode: status,
+  	  statusCode: status,
 	  body: body ? body.body : body[0],
           headers: response_headers,
 	},
@@ -165,7 +157,7 @@ module Firetail
 
       # Create a new request
       http = Net::HTTP.new(uri.hostname, uri.port)
-      #http.set_debug_output($stdout)
+      http.set_debug_output($stdout)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
