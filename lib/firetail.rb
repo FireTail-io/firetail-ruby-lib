@@ -6,6 +6,9 @@ require 'json'
 require 'net/http'
 require 'case_sensitive_headers' # a hack because firetail API headers is case-sensitive
 require "async"
+if defined?(Rails)
+  require 'rails'
+end
 
 module Firetail
   class Error < StandardError; end
@@ -75,7 +78,13 @@ module Firetail
       request_method            = env['REQUEST_METHOD']
       request_path              = env['REQUEST_PATH']
       request_http_version      = env['HTTP_VERSION']
+ 
+      # get the resource parameters if it is rails
+      if defined?(Rails)
+        resource = Rails.application.routes.recognize_path(request_path).to_s
+      end
 
+      Firetail.logger.debug(@request.url)
       # select those with "HTTP_" prefix, these are request headers
       request_headers = env.select {|key,val| key.start_with? 'HTTP_' } # find HTTP_ prefixes, these are requests only
 	                .collect {|key, val| { "#{key.sub(/^HTTP_/, '')}": [val] }} # remove HTTP_ prefix
@@ -87,6 +96,7 @@ module Firetail
                          .map {|key, val| { "#{key}": [val] }} # map to firetail api format
                          .reduce({}, :merge) # reduce from [{key:val},{key2: val2}] to {key: val, key2: val2}
 
+      #Firetail.logger.debug "request params: #{@request.params.inspect}"
       # add the request and response data 
       # to array of data for batching up
       @reqres.push({
@@ -99,7 +109,7 @@ module Firetail
 	  method: request_method,
 	  body: @request.body.read,
 	  ip: request_ip,
-	  resource: request_path,
+	  resource: resource,
 	  uri: @request.url
 	},
 	response: {

@@ -1,0 +1,47 @@
+PATH
+  remote: .
+  specs:
+    firetail (0.0.0)
+      async (~> 1.30.3)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    async (1.30.3)
+      console (~> 1.10)
+      nio4r (~> 2.3)
+      timers (~> 4.1)
+    console (1.15.3)
+      fiber-local
+    diff-lcs (1.4.4)
+    fiber-local (1.0.0)
+    nio4r (2.5.8)
+    rack (3.0.1)
+    rake (10.5.0)
+    rspec (3.10.0)
+      rspec-core (~> 3.10.0)
+      rspec-expectations (~> 3.10.0)
+      rspec-mocks (~> 3.10.0)
+    rspec-core (3.10.1)
+      rspec-support (~> 3.10.0)
+    rspec-expectations (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-mocks (3.10.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-support (3.10.2)
+    timers (4.3.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 2.0)
+  firetail!
+  rack
+  rake (~> 10.0)
+  rspec (~> 3.0)
+
+BUNDLED WITH
+   2.0.2
