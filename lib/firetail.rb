@@ -81,8 +81,12 @@ module Firetail
  
       # get the resource parameters if it is rails
       if defined?(Rails)
-        resource = Rails.application.routes.recognize_path(request_path).to_s
+        resource = Rails.application.routes.recognize_path(request_path).to_s 
+      else
+	resource = nil
       end
+
+      Firetail.logger.debug(resource)
 
       Firetail.logger.debug(@request.url)
       # select those with "HTTP_" prefix, these are request headers
