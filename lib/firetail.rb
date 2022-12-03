@@ -96,7 +96,9 @@ module Firetail
 	# after being sorted
 	reverse_resource = rmap.reverse.drop(1)
 	# rebuild the resource path
+	# reverse_resource * "/" will loop the array and add "/"
 	resource_path = "/" + reverse_resource * "/" + "/" + resource[:controller] + "/" + "{id}"
+	# end result is /posts/{postId}/comments/{commentId}/options/{id}
       else
 	resource_path = nil
       end
