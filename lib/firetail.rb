@@ -8,6 +8,7 @@ require 'case_sensitive_headers' # a hack because firetail API headers is case-s
 require "async"
 if defined?(Rails)
   require 'rails'
+  require 'action_pack'
 end
 
 module Firetail
@@ -81,14 +82,26 @@ module Firetail
  
       # get the resource parameters if it is rails
       if defined?(Rails)
-        resource = Rails.application.routes.recognize_path(request_path).to_s 
+        resource = Rails.application.routes.recognize_path(request_path)
+	# sample hash of the above resource:
+	# example url: /posts/1/comments/2/options/3
+	# hash = {:controller=>"options", :action=>"show", :comment_id => 3, :post_id=>"1", :id=>"1"}
+	# take the resource hash above, get keys, split "_" to get name at first index, together
+	# with a camelcase route id name and only include _id, compact (remove nil) and add "s" to the key
+	rmap = resource.map {|k,v| [k.to_s.split("_")[0], "{#{k.to_s.camelize(:lower)}}"] if k.to_s.include? "id" }
+	.compact.map {|k,v| [k.to_s + "s", v] if k != "id" }
+
+	# It will appear like: [["comment", "commentId"], ["post", "postId"], ["id", "id"]], 
+	# but we want post to be first in order, so we reverse sort, and drop "id", which will be first in array
+	# after being sorted
+	reverse_resource = rmap.reverse.drop(1)
+	# rebuild the resource path
+	resource_path = "/" + reverse_resource * "/" + "/" + resource[:controller] + "/" + "{id}"
       else
-	resource = nil
+	resource_path = nil
       end
 
-      Firetail.logger.debug(resource)
-
-      Firetail.logger.debug(@request.url)
+      Firetail.logger.debug("resource path: #{resource_path}")
       # select those with "HTTP_" prefix, these are request headers
       request_headers = env.select {|key,val| key.start_with? 'HTTP_' } # find HTTP_ prefixes, these are requests only
 	                .collect {|key, val| { "#{key.sub(/^HTTP_/, '')}": [val] }} # remove HTTP_ prefix
@@ -113,7 +126,7 @@ module Firetail
 	  method: request_method,
 	  body: @request.body.read,
 	  ip: request_ip,
-	  resource: resource,
+	  resource: resource_path,
 	  uri: @request.url
 	},
 	response: {
