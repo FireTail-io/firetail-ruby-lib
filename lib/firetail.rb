@@ -91,7 +91,7 @@ module Firetail
 	rmap = resource.map {|k,v| [k.to_s.split("_")[0], "{#{k.to_s.camelize(:lower)}}"] if k.to_s.include? "id" }
 	.compact.map {|k,v| [k.to_s + "s", v] if k != "id" }
 
-	# It will appear like: [["comment", "commentId"], ["post", "postId"], ["id", "id"]], 
+	# It will appear like: [["comments", "commentId"], ["posts", "postId"], ["id", "id"]], 
 	# but we want post to be first in order, so we reverse sort, and drop "id", which will be first in array
 	# after being sorted
 	reverse_resource = rmap.reverse.drop(1)
