@@ -87,7 +87,7 @@ module Firetail
 	# example url: /posts/1/comments/2/options/3
 	# hash = {:controller=>"options", :action=>"show", :comment_id => 3, :post_id=>"1", :id=>"1"}
 	# take the resource hash above, get keys, split "_" to get name at first index, together
-	# with a camelcase route id name and only include _id, compact (remove nil) and add "s" to the key
+	# with a camelcase route id name and keys that only include "id", compact (remove nil) and add "s" to the key
 	rmap = resource.map {|k,v| [k.to_s.split("_")[0], "{#{k.to_s.camelize(:lower)}}"] if k.to_s.include? "id" }
 	.compact.map {|k,v| [k.to_s + "s", v] if k != "id" }
 
