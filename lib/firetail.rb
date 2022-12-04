@@ -91,14 +91,21 @@ module Firetail
 	rmap = resource.map {|k,v| [k.to_s.split("_")[0], "{#{k.to_s.camelize(:lower)}}"] if k.to_s.include? "id" }
 	.compact.map {|k,v| [k.to_s + "s", v] if k != "id" }
 
-	# It will appear like: [["comments", "commentId"], ["posts", "postId"], ["id", "id"]], 
-	# but we want post to be first in order, so we reverse sort, and drop "id", which will be first in array
-	# after being sorted
-	reverse_resource = rmap.reverse.drop(1)
-	# rebuild the resource path
-	# reverse_resource * "/" will loop the array and add "/"
-	resource_path = "/" + reverse_resource * "/" + "/" + resource[:controller] + "/" + "{id}"
-	# end result is /posts/{postId}/comments/{commentId}/options/{id}
+	if resource.key? :id 
+	  # It will appear like: [["comments", "commentId"], ["posts", "postId"], ["id", "id"]], 
+	  # but we want post to be first in order, so we reverse sort, and drop "id", which will be first in array
+	  # after being sorted
+	  reverse_resource = rmap.reverse.drop(1)
+          resource_path = "/" + reverse_resource * "/" + "/" + resource[:controller] + "/" + "{id}"
+	  # rebuild the resource path
+	  # reverse_resource * "/" will loop the array and add "/"
+	  #resource_path = "/" + reverse_resource * "/" + "/" + resource[:controller] + "/" + "{id}"
+	  # end result is /posts/{postId}/comments/{commentId}/options/{id}
+	else
+	  # resource path from rmap above without the [:id] key (which is the last parameter in URL)
+          # only used for index, create which does not have id
+          resource_path = "/" + rmap * "/" + "/" + resource[:controller]
+	end
       else
 	resource_path = nil
       end
