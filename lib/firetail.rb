@@ -95,10 +95,6 @@ module Firetail
 	.compact.map {|k,v| [k.to_s + "s", v] if k != "id" }
 
 	if resource.key? :id 
-	  if rmap[0].nil?
-	    # If there is an id but there is no data at rmap 0 index, use the below path
-            resource_path = rmap * "/" + "/" + resource[:controller] + "/" + "{id}"
-          else
 	    # It will appear like: [["comments", "commentId"], ["posts", "postId"], ["id", "id"]], 
 	    # but we want post to be first in order, so we reverse sort, and drop "id", which will be first in array
 	    # after being sorted
@@ -108,7 +104,6 @@ module Firetail
 	    # reverse_resource * "/" will loop the array and add "/"
 	    #resource_path = "/" + reverse_resource * "/" + "/" + resource[:controller] + "/" + "{id}"
 	    # end result is /posts/{postId}/comments/{commentId}/options/{id}
-	  end
 	else
 	  if rmap.empty?
 	    # if resoruce is empty, means we are at the first level of the url path, so no need extra paths
