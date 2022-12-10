@@ -144,13 +144,15 @@ module Firetail
       else
 	request_token = nil
       end
+
+      time_spent_in_ms = time_spent * 1000
       #Firetail.logger.debug "request params: #{@request.params.inspect}"
       # add the request and response data 
       # to array of data for batching up
       @reqres.push({
 	version: "1.0.0-alpha",
 	dateCreated: Time.now.utc.to_i,
-	executionTime: time_spent,
+	executionTime: time_spent_in_ms,
         request: {
  	  httpProtocol: request_http_version,
 	  headers: request_headers, # headers must be in: headers: {"key": ["value"]}, array in object
@@ -174,7 +176,7 @@ module Firetail
       # buffered max is 120 seconds
       current_time = Time.now
       # duration in millseconds
-      duration = (current_time - @init_time) * 1000.0
+      duration = (current_time - @init_time)
 
       #Firetail.logger.debug "size in bytes #{ObjectSpace.memsize_of(@request_data.to_s)}"
       #request data size in bytes
@@ -195,7 +197,24 @@ module Firetail
 	# This is an async task
 	Async do |task|
           task.async do
-            send_to_backend(payload)
+	    # loop with retry logic
+            for a in 1..@number_of_retries do
+	      # send to firetail backend
+              request = send_to_backend(payload)
+	      # if request response code is not either 404, 200 or 401,
+	      # then try sending. 
+	      # @number_of_retries is configurable in .yaml file
+	      # .to_i means convert the string to integer
+	      if not [404, 200, 401].include?(request.code.to_i)
+	        Firetail.logger.info "Unsuccessful sending to Firetail, retrying..."
+		# sleep 5 seconds to be more polite to firetail backend
+		sleep 5
+	      else
+                Firetail.logger.info "Successfully sent to Firetail"
+		# if successful sent to firetail, break the loop
+		break
+	      end 
+	    end
           end
 	end
 
@@ -215,30 +234,30 @@ module Firetail
 
       # Create a new request
       http = Net::HTTP.new(uri.hostname, uri.port)
-      http.set_debug_output($stdout)
+      #http.set_debug_output($stdout)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-      # Create a new request
-      req = CustomPost.new(uri.path,
-      {
-        'content-type': 'application/nd-json',
-        'x-ft-api-key': @api_key
-      })
+      begin
+        # Create a new request
+        req = CustomPost.new(uri.path,
+        {
+          'content-type': 'application/nd-json',
+          'x-ft-api-key': @api_key
+        })
 
-      req.body = payload
-      # Send the request
-      res = http.request(req)
-      Firetail.logger.debug "response from firetail: #{res}"
+        req.body = payload
+        # Send the request
+        res = http.request(req)
+	#Firetail.logger.debug "response from firetail: #{res}"
+      rescue StandardError => e
+	#Firetail.logger.info "Firetail HTTP Request failed (#{e.message})"
+      end
     end
 
     def sha1_hash(value)
       hash = Digest::SHA1.hexdigest 'value'
       sha1 = "sha1: #{hash}"
-    end
-
-    def scrub_pii(headers)
-
     end
   end
 
