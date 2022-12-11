@@ -4,3 +4,6 @@ source "https://rubygems.org"
 gemspec
 
 gem 'rack'
+group :development, :test do
+  gem "webmock", "~> 3.18"
+end

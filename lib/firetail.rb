@@ -8,6 +8,8 @@ require 'case_sensitive_headers' # a hack because firetail API headers is case-s
 require "async"
 require 'digest/sha1'
 require 'jwt'
+require 'logger'
+# If the library detects rails, it will load rail's methods
 if defined?(Rails)
   require 'rails'
   require 'action_pack'
@@ -61,7 +63,7 @@ module Firetail
         status, client_headers, body = response = @app.call(env)
 	log(env, status, body, started_on, Time.now)
       rescue Exception => exception
-	      log(env, status, body, started_on, Time.now, exception)
+	log(env, status, body, started_on, Time.now, exception)
         raise exception
       end
 
@@ -237,6 +239,7 @@ module Firetail
       #http.set_debug_output($stdout)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.timeout = @network_timeout
 
       begin
         # Create a new request
