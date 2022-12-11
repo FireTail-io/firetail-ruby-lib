@@ -25,7 +25,7 @@ GEM
     nio4r (2.5.8)
     public_suffix (4.0.7)
     rack (3.0.1)
-    rake (10.5.0)
+    rake (13.0.6)
     rexml (3.2.5)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -53,7 +53,7 @@ DEPENDENCIES
   bundler (~> 2.0)
   firetail!
   rack
-  rake (~> 10.0)
+  rake (~> 13.0)
   rspec (~> 3.0)
   webmock (~> 3.18)
 
