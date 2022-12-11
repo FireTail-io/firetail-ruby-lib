@@ -4,6 +4,7 @@ source "https://rubygems.org"
 gemspec
 
 gem 'rack'
+gem 'rake', "~> 13.0"
 group :development, :test do
   gem "webmock", "~> 3.18"
 end
