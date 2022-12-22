@@ -36,4 +36,5 @@ Gem::Specification.new do |spec|
   # These gems are needed for firetail in production
   spec.add_dependency "async", "~> 1.30.3"
   spec.add_dependency "jwt", "~> 2.5"
+  spec.add_dependency "json-schema", "~> 3.0.0"
 end

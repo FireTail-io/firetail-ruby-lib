@@ -9,6 +9,9 @@ require "async"
 require 'digest/sha1'
 require 'jwt'
 require 'logger'
+require 'json_validator'
+require 'backend'
+
 # If the library detects rails, it will load rail's methods
 if defined?(Rails)
   require 'rails'
@@ -70,6 +73,14 @@ module Firetail
       response
     end
 
+    def validator(json)
+      result = JsonValidator.validate(json)
+      if !result
+        return false
+      end
+      true
+    end
+
     def log(env,
 	    status,
 	    body,
@@ -83,7 +94,7 @@ module Firetail
       request_method            = env['REQUEST_METHOD']
       request_path              = env['REQUEST_PATH']
       request_http_version      = env['HTTP_VERSION']
- 
+
       # get the resource parameters if it is rails
       if defined?(Rails)
         resource = Rails.application.routes.recognize_path(request_path)
@@ -151,6 +162,7 @@ module Firetail
       #Firetail.logger.debug "request params: #{@request.params.inspect}"
       # add the request and response data 
       # to array of data for batching up
+      @request.body.rewind
       @reqres.push({
 	version: "1.0.0-alpha",
 	dateCreated: Time.now.utc.to_i,
@@ -173,6 +185,7 @@ module Firetail
           subject: subject ? sha1_hash(subject) :  nil,
 	}
       })
+      @request.body.rewind
 
       # the time we calculate if request that is
       # buffered max is 120 seconds
@@ -202,7 +215,13 @@ module Firetail
 	    # loop with retry logic
             for a in 1..@number_of_retries do
 	      # send to firetail backend
-              request = send_to_backend(payload)
+	      # values to use for backend object
+	      options = {"url": @url,
+		         "network_timeout": @network_timeout,
+			 "api_key": @api_key}
+
+	      backend = Backend.new
+	      request = backend.send_now(payload, options)
 	      # if request response code is not either 404, 200 or 401,
 	      # then try sending. 
 	      # @number_of_retries is configurable in .yaml file
@@ -220,6 +239,14 @@ module Firetail
           end
 	end
 
+        @request.body.rewind
+	validate = self.validator(@request.body.read)
+	if !validate
+          content = 'Bad Request'
+          return [400, {'Content-Type' => 'text/html', 'Content-Length' => content.size.to_s}, [content] ]
+        end
+        @request.body.rewind
+
 	# reset back to the initial conditions
 	payload = nil
 	@reqres = []
@@ -227,35 +254,6 @@ module Firetail
       end
     rescue Exception => exception
       Firetail.logger.error(exception.message)
-    end
-
-    def send_to_backend(payload)
-      #Firetail.logger.debug datas.to_json
-      # Parse it as URI
-      uri = URI(@url)
-
-      # Create a new request
-      http = Net::HTTP.new(uri.hostname, uri.port)
-      #http.set_debug_output($stdout)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      http.timeout = @network_timeout
-
-      begin
-        # Create a new request
-        req = CustomPost.new(uri.path,
-        {
-          'content-type': 'application/nd-json',
-          'x-ft-api-key': @api_key
-        })
-
-        req.body = payload
-        # Send the request
-        res = http.request(req)
-	#Firetail.logger.debug "response from firetail: #{res}"
-      rescue StandardError => e
-	#Firetail.logger.info "Firetail HTTP Request failed (#{e.message})"
-      end
     end
 
     def sha1_hash(value)
