@@ -9,6 +9,7 @@ require "async"
 require 'digest/sha1'
 require 'jwt'
 require 'logger'
+require 'committee'
 require 'json_validator'
 require 'backend'
 
@@ -31,6 +32,9 @@ module Firetail
     end
  
     def call(env)
+      @reqres ||= [] # request data in stored in array memory
+      @init_time ||= Time.now # initialize time
+
       # This block initialises the configuration and checks
       # sets the values for certain necessary configuration
       # If it is Rails
@@ -73,14 +77,6 @@ module Firetail
       response
     end
 
-    def validator(json)
-      result = JsonValidator.validate(json)
-      if !result
-        return false
-      end
-      true
-    end
-
     def log(env,
 	    status,
 	    body,
@@ -94,7 +90,7 @@ module Firetail
       request_method            = env['REQUEST_METHOD']
       request_path              = env['REQUEST_PATH']
       request_http_version      = env['HTTP_VERSION']
-
+       
       # get the resource parameters if it is rails
       if defined?(Rails)
         resource = Rails.application.routes.recognize_path(request_path)
@@ -270,3 +266,28 @@ module Firetail
     @@logger = logger
   end
 end
+
+if defined?(Rails)
+  begin
+#    schema_path = File.join(Rails.root, "config/schema.json")
+    schema_path = "/Users/zaihan/Projects/test123/config/schema.json"
+  rescue Errno::ENOENT
+     # error message if firetail is not installed
+    puts ""
+    puts "Please run 'rails generate firetail:schema' first"
+    puts ""
+  end
+else
+    schema_path = "schema.json"
+end
+
+# The request validator verifies that the required input parameters (and no
+# unknown input parameters) are included with the request and that they are
+# of the right types.
+app = Rack::Builder.app do
+  puts "rack builder"
+#  use Rack::CommonLogger
+  use Committee::Middleware::RequestValidation, schema_path: schema_path
+  run Firetail::Run.new app
+end.to_app
+#use Committee::Middleware::RequestValidation, schema_path: SCHEMA_PATH

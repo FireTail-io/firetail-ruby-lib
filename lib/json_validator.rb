@@ -1,26 +1,21 @@
 require 'json-schema'
 require 'json'
+require 'committee'
 
 class Error < StandardError; end
 
 class JsonValidator
 
-  def self.validate(payload)
-    schema_location = File.join(Rails.root, "config/schema.yaml") 
-    schema_exists = File.exists?(schema_location)
-    if schema_exists
-      data = JSON.parse(payload)
+  def self.validate(schema_path)
+    # The request validator verifies that the required input parameters (and no
+    # unknown input parameters) are included with the request and that they are
+    # of the right types.
+    #use Committee::Middleware::RequestValidation, schema_path: schema_path
 
-      schema = YAML.load_file(schema_location)
-      result = JSON::Validator.validate!(schema, data)
-      puts "result: #{result}, data: #{data}"
-      if result
-        return false
-      end
-      true
-    else
-      false
-      raise Error.new "need your API specification in \"config/schema.yaml\""
-    end
+    # The response validator checks that responses from within the stack are
+    # compliant with the JSON schema. It's normally used for verification in
+    # tests, but here we can use it to check that our changes to the stub's
+    # responses are still compliant with our schema.
+    #use Committee::Middleware::ResponseValidation, schema_path: schema_path
   end
 end

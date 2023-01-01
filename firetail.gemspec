@@ -37,4 +37,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "async", "~> 1.30.3"
   spec.add_dependency "jwt", "~> 2.5"
   spec.add_dependency "json-schema", "~> 3.0.0"
+  spec.add_dependency "committee", "~> 4.4.0"
 end
