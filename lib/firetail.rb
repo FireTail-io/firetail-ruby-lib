@@ -156,7 +156,6 @@ module Firetail
       # add the request and response data 
       # to array of data for batching up
       @request.body.rewind
-      Firetail.logger.debug "response #{body.inspect}"
       @reqres.push({
 	version: "1.0.0-alpha",
 	dateCreated: Time.now.utc.to_i,
@@ -190,7 +189,7 @@ module Firetail
 
       #Firetail.logger.debug "size in bytes #{ObjectSpace.memsize_of(@request_data.to_s)}"
       #request data size in bytes
-      #request_data_size = ObjectSpace.memsize_of(@request_data.to_s)
+      request_data_size = ObjectSpace.memsize_of(@request_data)
       # It is difficult to calculate the object size in bytes, 
       # seems to not return the accurate values
 
@@ -202,34 +201,36 @@ module Firetail
 	# we parse the data hash into json-nl (json-newlines)
 	payload = @reqres.map { |data| JSON.generate(data) }.join("\n")
 
-        Firetail.logger.debug "payload #{payload}"
 	# send the data to backend API
 	# This is an async task
 	Async do |task|
           task.async do
-	    # loop with retry logic
-            for a in 1..@number_of_retries do
-	      # send to firetail backend
-	      # values to use for backend object
-	      options = {"url": @url,
-		         "network_timeout": @network_timeout,
-			 "api_key": @api_key}
+            # below code includes exponential backoff algorithm
+            retries = 0
+            begin
+              # send to firetail backend
+              # values to use for backend object
+              options = {"url": @url,
+                         "network_timeout": @network_timeout,
+                         "api_key": @api_key}
 
-	      request = Backend.send_now(payload, options)
-	      # if request response code is not either 404, 200 or 401,
-	      # then try sending. 
-	      # @number_of_retries is configurable in .yaml file
-	      # .to_i means convert the string to integer
-	      if not [404, 200, 401].include?(request.code.to_i)
-	        Firetail.logger.info "Unsuccessful sending to Firetail, retrying..."
-		# sleep 5 seconds to be more polite to firetail backend
-		sleep 5
-	      else
-                Firetail.logger.info "Successfully sent to Firetail"
-		# if successful sent to firetail, break the loop
-		break
-	      end 
-	    end
+              request = Backend.send_now(payload, options)
+              Firetail.logger.info "Successfully sent to Firetail"
+            rescue Net::HTTPError => e
+              # if request response code is an error
+              # then try sending.
+              # @number_of_retries is configurable in .yaml file
+
+              if retries <= @number_of_retries
+                retries += 1
+                max_sleep_seconds = Float(2 ** retries)
+                sleep rand(0..max_sleep_seconds)
+                retry
+              else
+                raise "Giving up on the server after #{retries} retries. Got error: #{e.message}"
+              end
+            end
+
           end
 	end
 
