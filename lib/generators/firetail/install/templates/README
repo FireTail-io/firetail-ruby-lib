@@ -7,6 +7,9 @@ with your API Key, Token and URL first before running your Rails app.
 
 The middleware is already configured in "config/application.rb" (you can check that)
 
+Also we have installed a sample copy of schema.json in "config/schema.json" (your API schema) 
+for you to better understand and create your schema based on your needs.
+
 Happy coding!
 
 - From the team at Firetail

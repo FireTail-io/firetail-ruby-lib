@@ -9,14 +9,14 @@ require "async"
 require 'digest/sha1'
 require 'jwt'
 require 'logger'
-require 'committee'
-require 'json_validator'
+require 'railtie'
 require 'backend'
 
 # If the library detects rails, it will load rail's methods
 if defined?(Rails)
-  require 'rails'
+  require 'action_dispatch'
   require 'action_pack'
+  require 'railtie'
 end
 
 module Firetail
@@ -32,9 +32,6 @@ module Firetail
     end
  
     def call(env)
-      @reqres ||= [] # request data in stored in array memory
-      @init_time ||= Time.now # initialize time
-
       # This block initialises the configuration and checks
       # sets the values for certain necessary configuration
       # If it is Rails
@@ -159,6 +156,7 @@ module Firetail
       # add the request and response data 
       # to array of data for batching up
       @request.body.rewind
+      Firetail.logger.debug "response #{body.inspect}"
       @reqres.push({
 	version: "1.0.0-alpha",
 	dateCreated: Time.now.utc.to_i,
@@ -174,7 +172,8 @@ module Firetail
 	},
 	response: {
   	  statusCode: status,
-	  body: body ? body.body : body[0],
+	  #body: body[0] ? body[0] : body.body,
+          body: "test",
           headers: response_headers,
 	},
 	oauth: {
@@ -203,7 +202,7 @@ module Firetail
 	# we parse the data hash into json-nl (json-newlines)
 	payload = @reqres.map { |data| JSON.generate(data) }.join("\n")
 
-	#puts "Our data: #{payload}"
+        Firetail.logger.debug "payload #{payload}"
 	# send the data to backend API
 	# This is an async task
 	Async do |task|
@@ -216,8 +215,7 @@ module Firetail
 		         "network_timeout": @network_timeout,
 			 "api_key": @api_key}
 
-	      backend = Backend.new
-	      request = backend.send_now(payload, options)
+	      request = Backend.send_now(payload, options)
 	      # if request response code is not either 404, 200 or 401,
 	      # then try sending. 
 	      # @number_of_retries is configurable in .yaml file
@@ -235,14 +233,6 @@ module Firetail
           end
 	end
 
-        @request.body.rewind
-	validate = self.validator(@request.body.read)
-	if !validate
-          content = 'Bad Request'
-          return [400, {'Content-Type' => 'text/html', 'Content-Length' => content.size.to_s}, [content] ]
-        end
-        @request.body.rewind
-
 	# reset back to the initial conditions
 	payload = nil
 	@reqres = []
@@ -253,7 +243,7 @@ module Firetail
     end
 
     def sha1_hash(value)
-      hash = Digest::SHA1.hexdigest 'value'
+      hash = Digest::SHA1.hexdigest value
       sha1 = "sha1: #{hash}"
     end
   end
@@ -265,29 +255,5 @@ module Firetail
   def self.logger=(logger)
     @@logger = logger
   end
-end
 
-if defined?(Rails)
-  begin
-#    schema_path = File.join(Rails.root, "config/schema.json")
-    schema_path = "/Users/zaihan/Projects/test123/config/schema.json"
-  rescue Errno::ENOENT
-     # error message if firetail is not installed
-    puts ""
-    puts "Please run 'rails generate firetail:schema' first"
-    puts ""
-  end
-else
-    schema_path = "schema.json"
 end
-
-# The request validator verifies that the required input parameters (and no
-# unknown input parameters) are included with the request and that they are
-# of the right types.
-app = Rack::Builder.app do
-  puts "rack builder"
-#  use Rack::CommonLogger
-  use Committee::Middleware::RequestValidation, schema_path: schema_path
-  run Firetail::Run.new app
-end.to_app
-#use Committee::Middleware::RequestValidation, schema_path: SCHEMA_PATH
