@@ -21,8 +21,12 @@ class Backend
       })
 
       req.body = payload
-      # Send the request
-      res = http.request(req)
+      # Create new thread
+      Thread.new {
+        # Send the request
+        http.request(req)
+      }
+
       #Firetail.logger.debug "response from firetail: #{res}"
     rescue StandardError => e
       Firetail.logger.info "Firetail HTTP Request failed (#{e.message})"
