@@ -9,7 +9,6 @@ require "async"
 require 'digest/sha1'
 require 'jwt'
 require 'logger'
-require 'railtie'
 require 'backend'
 
 # If the library detects rails, it will load rail's methods
@@ -156,6 +155,11 @@ module Firetail
       # add the request and response data 
       # to array of data for batching up
       @request.body.rewind
+      if body.is_a? Array
+        body = body[0]
+      else
+        body = body.body
+      end
       @reqres.push({
 	version: "1.0.0-alpha",
 	dateCreated: Time.now.utc.to_i,
@@ -171,8 +175,7 @@ module Firetail
 	},
 	response: {
   	  statusCode: status,
-	  #body: body[0] ? body[0] : body.body,
-          body: "test",
+	  body: body,
           headers: response_headers,
 	},
 	oauth: {
@@ -180,6 +183,7 @@ module Firetail
 	}
       })
       @request.body.rewind
+      #Firetail.logger.debug "Request: #{body}"
 
       # the time we calculate if request that is
       # buffered max is 120 seconds
