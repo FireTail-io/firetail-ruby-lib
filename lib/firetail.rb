@@ -9,7 +9,7 @@ require "async"
 require 'digest/sha1'
 require 'jwt'
 require 'logger'
-require 'backend'
+require 'background_tasks'
 
 # If the library detects rails, it will load rail's methods
 if defined?(Rails)
@@ -135,21 +135,10 @@ module Firetail
                          .map {|key, val| { "#{key}": [val] }} # map to firetail api format
                          .reduce({}, :merge) # reduce from [{key:val},{key2: val2}] to {key: val, key2: val2}
 
-      authorization = request_headers[:AUTHORIZATION]
-      if authorization
-	# if authorization exists, get the value at in dex
-	# split the values which has a space (example: "Bearer 123") and 
-	# get the value at index 1
-        request_token = authorization[0].split(" ")[1]
-	# decode the token
-	jwt_value = JWT.decode(request_token, nil, false)
-	# get the subject value
-	subject = jwt_value[0]["sub"]
-	#Firetail.logger.debug("subject value: #{subject}")
-      else
-	request_token = nil
-      end
+      # get the jwt "sub" information
+      subject = self.jwt_decoder(request_headers[:AUTHORIZATION])
 
+      # default time spent in ruby is in seconds, so multiple by 1000 to ms
       time_spent_in_ms = time_spent * 1000
       #Firetail.logger.debug "request params: #{@request.params.inspect}"
       # add the request and response data 
@@ -207,36 +196,11 @@ module Firetail
 
 	# send the data to backend API
 	# This is an async task
-	Async do |task|
-          task.async do
-            # below code includes exponential backoff algorithm
-            retries = 0
-            begin
-              # send to firetail backend
-              # values to use for backend object
-              options = {"url": @url,
-                         "network_timeout": @network_timeout,
-                         "api_key": @api_key}
-
-              request = Backend.send_now(payload, options)
-              Firetail.logger.info "Successfully sent to Firetail"
-            rescue Net::HTTPError => e
-              # if request response code is an error
-              # then try sending.
-              # @number_of_retries is configurable in .yaml file
-
-              if retries <= @number_of_retries
-                retries += 1
-                max_sleep_seconds = Float(2 ** retries)
-                sleep rand(0..max_sleep_seconds)
-                retry
-              else
-                raise "Giving up on the server after #{retries} retries. Got error: #{e.message}"
-              end
-            end
-
-          end
-	end
+	BackgroundTasks.http_task(@url,
+			@network_timeout,
+			@api_key,
+			@number_of_tries,
+		        payload)
 
 	# reset back to the initial conditions
 	payload = nil
@@ -248,8 +212,26 @@ module Firetail
     end
 
     def sha1_hash(value)
-      hash = Digest::SHA1.hexdigest value
+      encode_utf8 = value.encode(Encoding::UTF_8)
+      hash = Digest::SHA1.hexdigest(encode_utf8)
       sha1 = "sha1: #{hash}"
+    end
+
+    def jwt_decoder(value)
+      bearer_string = value
+      if bearer_string
+        # if authorization exists, get the value at index
+        # split the values which has a space (example: "Bearer 123") and 
+        # get the value at index 1
+        token = bearer_string.split(" ")[1]
+        # decode the token
+        jwt_value = JWT.decode token, nil, false
+        # get the subject value
+        subject = jwt_value[0]["sub"]
+        #Firetail.logger.debug("subject value: #{subject}")
+      else
+        subject = ""
+      end
     end
   end
 

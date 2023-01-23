@@ -23,6 +23,7 @@ class Backend
       req.body = payload
       # Create new thread
       Thread.new {
+	Thread.current.report_on_exception = false
         # Send the request
         http.request(req)
       }
