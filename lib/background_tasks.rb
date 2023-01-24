@@ -21,9 +21,7 @@ class BackgroundTasks
                        "api_key": api_key}
 
             request = Backend.send_now(payload, options)
-	    if request
-              Firetail.logger.info "Successfully sent to Firetail"
-	    end
+            Firetail.logger.info "Successfully sent to Firetail"
           rescue Net::HTTPError => e
             # if request response code is an error
             # then try sending.

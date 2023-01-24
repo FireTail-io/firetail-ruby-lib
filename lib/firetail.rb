@@ -136,7 +136,11 @@ module Firetail
                          .reduce({}, :merge) # reduce from [{key:val},{key2: val2}] to {key: val, key2: val2}
 
       # get the jwt "sub" information
-      subject = self.jwt_decoder(request_headers[:AUTHORIZATION])
+      if request_headers[:AUTHORIZATION]
+        subject = self.jwt_decoder(request_headers[:AUTHORIZATION])
+      else
+	subject = nil
+      end
 
       # default time spent in ruby is in seconds, so multiple by 1000 to ms
       time_spent_in_ms = time_spent * 1000
@@ -219,19 +223,15 @@ module Firetail
 
     def jwt_decoder(value)
       bearer_string = value
-      if bearer_string
-        # if authorization exists, get the value at index
-        # split the values which has a space (example: "Bearer 123") and 
-        # get the value at index 1
-        token = bearer_string.split(" ")[1]
-        # decode the token
-        jwt_value = JWT.decode token, nil, false
-        # get the subject value
-        subject = jwt_value[0]["sub"]
-        #Firetail.logger.debug("subject value: #{subject}")
-      else
-        subject = ""
-      end
+      # if authorization exists, get the value at index
+      # split the values which has a space (example: "Bearer 123") and 
+      # get the value at index 1
+      token = bearer_string.split(" ")[1]
+      # decode the token
+      jwt_value = JWT.decode token, nil, false
+      # get the subject value
+      subject = jwt_value[0]["sub"]
+      #Firetail.logger.debug("subject value: #{subject}")
     end
   end
 
