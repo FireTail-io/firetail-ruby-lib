@@ -243,4 +243,24 @@ module Firetail
     @@logger = logger
   end
 
+  # custom error message
+  # https://blog.frankel.ch/structured-errors-http-apis/
+  # https://www.rfc-editor.org/rfc/rfc7807
+  class Committee::ValidationError
+    def error_body
+      {
+        errors: [
+          { status: code, detail: message }
+        ]
+      }
+    end
+
+    def render
+      [
+        status,
+        { "Content-Type" => "application/json" },
+        [JSON.generate(error_body)]
+      ]
+    end
+  end
 end
