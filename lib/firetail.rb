@@ -10,6 +10,7 @@ require 'digest/sha1'
 require 'jwt'
 require 'logger'
 require 'background_tasks'
+require 'committee'
 
 # If the library detects rails, it will load rail's methods
 if defined?(Rails)
@@ -243,4 +244,29 @@ module Firetail
     @@logger = logger
   end
 
+  # custom error message
+  # https://blog.frankel.ch/structured-errors-http-apis/
+  # https://www.rfc-editor.org/rfc/rfc7807
+  class Committee::ValidationError
+    def error_body
+      {
+        errors: [
+          {
+            type: "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}#{request.env['REQUEST_URI']}",
+            title: id,
+            detail: message,
+            status: status
+          }
+        ]
+      }
+    end
+
+    def render
+      [
+        status,
+        { "Content-Type" => "application/json" },
+        [JSON.generate(error_body)]
+      ]
+    end
+  end
 end
