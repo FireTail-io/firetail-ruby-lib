@@ -250,7 +250,12 @@ module Firetail
     def error_body
       {
         errors: [
-          { status: code, detail: message }
+          {
+            type: "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}#{request.env['REQUEST_URI']}",
+            title: id,
+            detail: message,
+            status: status
+          }
         ]
       }
     end
