@@ -246,7 +246,7 @@ module Firetail
   # custom error message
   # https://blog.frankel.ch/structured-errors-http-apis/
   # https://www.rfc-editor.org/rfc/rfc7807
-  class Committee::ValidationError
+  class ::Committee::ValidationError
     def error_body
       {
         errors: [
