@@ -10,6 +10,7 @@ require 'digest/sha1'
 require 'jwt'
 require 'logger'
 require 'background_tasks'
+require 'committee'
 
 # If the library detects rails, it will load rail's methods
 if defined?(Rails)
@@ -246,7 +247,7 @@ module Firetail
   # custom error message
   # https://blog.frankel.ch/structured-errors-http-apis/
   # https://www.rfc-editor.org/rfc/rfc7807
-  class ::Committee::ValidationError
+  class Committee::ValidationError
     def error_body
       {
         errors: [
