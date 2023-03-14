@@ -11,6 +11,7 @@ require 'jwt'
 require 'logger'
 require 'firetail/background_tasks'
 require 'firetail/resource'
+require 'committee'
 
 # If the library detects rails, it will load rail's methods
 if defined?(Rails)
