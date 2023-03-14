@@ -4,19 +4,19 @@ require 'objspace'
 require 'yaml'
 require 'json'
 require 'net/http'
-require 'case_sensitive_headers' # a hack because firetail API headers is case-sensitive
+require 'firetail/case_sensitive_headers' # a hack because firetail API headers is case-sensitive
 require "async"
 require 'digest/sha1'
 require 'jwt'
 require 'logger'
-require 'background_tasks'
-require 'resource'
+require 'firetail/background_tasks'
+require 'firetail/resource'
 
 # If the library detects rails, it will load rail's methods
 if defined?(Rails)
   require 'action_dispatch'
   require 'action_pack'
-  require 'railtie'
+  require 'firetail/railtie'
 end
 
 module Firetail
@@ -167,7 +167,7 @@ module Firetail
 
 	# send the data to backend API
 	# This is an async task
-	BackgroundTasks.http_task(@url,
+	Firetail::BackgroundTasks.http_task(@url,
 			@network_timeout,
 			@api_key,
 			@number_of_tries,

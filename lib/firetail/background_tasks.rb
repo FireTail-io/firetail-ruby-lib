@@ -1,6 +1,6 @@
-require 'backend'
+require 'firetail/backend'
 
-class BackgroundTasks
+class Firetail::BackgroundTasks
 
     # send the data to backend API
     # This is an async task
@@ -20,7 +20,7 @@ class BackgroundTasks
                        "network_timeout": timeout,
                        "api_key": api_key}
 
-            request = Backend.send_now(payload, options)
+            request = Firetail::Backend.send_now(payload, options)
             Firetail.logger.info "Successfully sent to Firetail"
           rescue Net::HTTPError => e
             # if request response code is an error

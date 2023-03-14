@@ -3,7 +3,7 @@ require 'rails'
 
 class Error < StandardError; end
 
-class Railtie < Rails::Railtie
+class Firetail::Railtie < Rails::Railtie
 
     initializer "commitee.insert_middleware" do |app|
       begin

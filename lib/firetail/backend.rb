@@ -1,4 +1,4 @@
-class Backend
+class Firetail::Backend
 
   def self.send_now(payload, options)
     #Firetail.logger.debug "running backend"
@@ -14,7 +14,7 @@ class Backend
 
     begin
       # Create a new request
-      req = CustomPost.new(uri.path,
+      req = Firetail::CustomPost.new(uri.path,
       {
         'content-type': 'application/nd-json',
         'x-ft-api-key': options[:api_key]

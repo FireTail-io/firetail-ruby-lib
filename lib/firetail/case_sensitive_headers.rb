@@ -1,4 +1,4 @@
-class CustomPost < Net::HTTP::Post
+class Firetail::CustomPost < Net::HTTP::Post
     def initialize_http_header(headers)
       @header = {}
       headers.each { |k, v| @header[k.to_s] = [v] }
