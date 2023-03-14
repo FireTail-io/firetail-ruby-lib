@@ -74,7 +74,7 @@ RSpec.describe Firetail do
       .to_return(status: 200, body: {"status":"success"}.to_json, headers: {})
 
       options = {url: url, api_key: "Abc123"}
-      request = Backend.send_now(payload, options)
+      request = Firetail::Backend.send_now(payload, options)
     end
 
     it "should not be successful without the correct request body" do
@@ -94,7 +94,7 @@ RSpec.describe Firetail do
       .to_return(status: 400, body: {status: "failed"}.to_json)
 
       options = {url: url, api_key: "Abc123"}
-      request = Backend.send_now(payload, options)
+      request = Firetail::Backend.send_now(payload, options)
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe Firetail do
             headers: headers)
       .to_raise(StandardError)
 
-      BackgroundTasks.http_task(url,
+      Firetail::BackgroundTasks.http_task(url,
                                 timeout,
                                 api_key,
                                 retries,
@@ -151,7 +151,7 @@ RSpec.describe Firetail do
       .then
       .to_raise(StandardError)
 
-      BackgroundTasks.http_task(url,
+      Firetail::BackgroundTasks.http_task(url,
                                 timeout,
                                 api_key,
                                 retries,
