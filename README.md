@@ -12,15 +12,15 @@ gem 'firetail'
 
 And then execute:
 
-    $ `bundle install`
+    $ bundle install
 
 Or install it yourself as:
 
-    $ `gem install firetail`
+    $ gem install firetail
 
 Finally, if you are using Rails, run:
 
-    $ `rails g firetail:install`
+    $ rails g firetail:install
 
 This will configure your Rails app to use Firetail gem as middleware and generate configuration and json schema template.
 
