@@ -1,8 +1,6 @@
 # Firetail
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/firetail`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Welcome to Firetail Ruby gem. Before we start, ensure that your ruby version is 2.7 and greater. We do not support ruby less than 2.7.
 
 ## Installation
 
@@ -14,15 +12,23 @@ gem 'firetail'
 
 And then execute:
 
-    $ bundle
+    $ `bundle install`
 
 Or install it yourself as:
 
-    $ gem install firetail
+    $ `gem install firetail`
+
+Finally, if you are using Rails, run:
+
+    $ `rails g firetail:install`
+
+This will configure your Rails app to use Firetail gem as middleware and generate configuration and json schema template.
 
 ## Usage
 
-TODO: Write usage instructions here
+1. Setup your Firetail key and Firetail backend URL by setting the environment variable `FIRETAIL_API_KEY` and `FIRETAIL_URL`
+2. Update `config/schema.json` to match your API endpoints.
+3. That's it! Happy coding!
 
 ## Development
 
@@ -32,7 +38,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/firetail. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/firetail-io/firetail-ruby-lib. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
@@ -40,4 +46,4 @@ The gem is available as open source under the terms of the LGPL License.
 
 ## Code of Conduct
 
-Everyone interacting in the Firetail project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/firetail/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Firetail project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/firetail-io/firetail-ruby-lib/blob/main/CODE_OF_CONDUCT.md).
