@@ -1,0 +1,72 @@
+PATH
+  remote: .
+  specs:
+    firetail (0.0.0)
+      async (~> 1.30.3)
+      committee_firetail (~> 5.0.0)
+      json-schema (~> 3.0.0)
+      jwt (~> 2.5)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.8.1)
+      public_suffix (>= 2.0.2, < 6.0)
+    async (1.30.3)
+      console (~> 1.10)
+      nio4r (~> 2.3)
+      timers (~> 4.1)
+    committee_firetail (5.0.0)
+      json_schema (~> 0.14, >= 0.14.3)
+      openapi_parser_firetail (~> 1.0)
+      rack (>= 1.5)
+    console (1.16.2)
+      fiber-local
+    crack (0.4.5)
+      rexml
+    diff-lcs (1.5.0)
+    fiber-local (1.0.0)
+    hashdiff (1.0.1)
+    json-schema (3.0.0)
+      addressable (>= 2.8)
+    json_schema (0.21.0)
+    jwt (2.7.0)
+    nio4r (2.5.8)
+    openapi_parser_firetail (1.0.0)
+      jwt (~> 2.5)
+    public_suffix (5.0.1)
+    rack (3.0.6.1)
+    rake (13.0.6)
+    rexml (3.2.5)
+    rspec (3.12.0)
+      rspec-core (~> 3.12.0)
+      rspec-expectations (~> 3.12.0)
+      rspec-mocks (~> 3.12.0)
+    rspec-core (3.12.0)
+      rspec-support (~> 3.12.0)
+    rspec-expectations (3.12.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.12.0)
+    rspec-mocks (3.12.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.12.0)
+    rspec-support (3.12.0)
+    timers (4.3.5)
+    webmock (3.18.1)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 2.0)
+  firetail!
+  rack (~> 3.0.6.1)
+  rake (~> 13.0)
+  rspec (~> 3.0)
+  webmock (~> 3.18)
+
+BUNDLED WITH
+   2.1.4

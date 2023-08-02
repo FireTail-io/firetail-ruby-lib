@@ -29,6 +29,13 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "webmock", "~> 3.18.1"
+
+  # These gems are needed for firetail in production
+  spec.add_dependency "async", "~> 1.30.3"
+  spec.add_dependency "jwt", "~> 2.5"
+  spec.add_dependency "json-schema", "~> 3.0.0"
+  spec.add_dependency "committee_firetail", "~> 5.0.0"
 end
