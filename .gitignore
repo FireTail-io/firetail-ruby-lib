@@ -13,27 +13,27 @@
 /ext/target
 
 # Ignore bundler config.
-/rails_example/.bundle
+/examples/rails/.bundle
 
 # Ignore the default SQLite database.
-/rails_example/db/*.sqlite3
+/example/rails/db/*.sqlite3
 /db/*.sqlite3-*
 
 # Ignore all logfiles and tempfiles.
-/rails_example/log/*
-/rails_example/tmp/*
-!/rails_example/log/.keep
-!/rails_example/tmp/.keep
+/examples/rails/log/*
+/examples/rails/tmp/*
+!/examples/rails/log/.keep
+!/examples/rails/tmp/.keep
 
 # Ignore pidfiles, but keep the directory.
-/rails_example/tmp/pids/*
-!/rails_example/tmp/pids/
-!/rails_example/tmp/pids/.keep
+/examples/rails/tmp/pids/*
+!/examples/rails/tmp/pids/
+!/examples/rails/tmp/pids/.keep
 
 # Ignore uploaded files in development.
-/rails_example/storage/*
-!/rails_example/storage/.keep
-/rails_example/.byebug_history
+/examples/rails/storage/*
+!/examples/rails/storage/.keep
+/examples/rails/.byebug_history
 
 # Ignore master key for decrypting credentials and more.
-/rails_example/config/master.key
+/examples/rails/config/master.key
