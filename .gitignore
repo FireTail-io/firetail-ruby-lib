@@ -11,3 +11,29 @@
 # rspec failure tracking
 .rspec_status
 /ext/target
+
+# Ignore bundler config.
+/rails_example/.bundle
+
+# Ignore the default SQLite database.
+/rails_example/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Ignore all logfiles and tempfiles.
+/rails/log/*
+/rails/tmp/*
+!/rails/log/.keep
+!/rails/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+/rails/tmp/pids/*
+!/rails/tmp/pids/
+!/rails/tmp/pids/.keep
+
+# Ignore uploaded files in development.
+/rails/storage/*
+!/rails/storage/.keep
+/rails/.byebug_history
+
+# Ignore master key for decrypting credentials and more.
+/rails/config/master.key
