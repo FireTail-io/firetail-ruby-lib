@@ -20,20 +20,20 @@
 /db/*.sqlite3-*
 
 # Ignore all logfiles and tempfiles.
-/rails/log/*
-/rails/tmp/*
-!/rails/log/.keep
-!/rails/tmp/.keep
+/rails_example/log/*
+/rails_example/tmp/*
+!/rails_example/log/.keep
+!/rails_example/tmp/.keep
 
 # Ignore pidfiles, but keep the directory.
-/rails/tmp/pids/*
-!/rails/tmp/pids/
-!/rails/tmp/pids/.keep
+/rails_example/tmp/pids/*
+!/rails_example/tmp/pids/
+!/rails_example/tmp/pids/.keep
 
 # Ignore uploaded files in development.
-/rails/storage/*
-!/rails/storage/.keep
-/rails/.byebug_history
+/rails_example/storage/*
+!/rails_example/storage/.keep
+/rails_example/.byebug_history
 
 # Ignore master key for decrypting credentials and more.
-/rails/config/master.key
+/rails_example/config/master.key
