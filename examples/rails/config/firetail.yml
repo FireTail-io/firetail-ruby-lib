@@ -1,0 +1,2 @@
+api_key: ENV.fetch("FIRETAIL_API_KEY")
+url: ENV.fetch("FIRETAIL_URL")
