@@ -12,7 +12,6 @@ class Railtie < Rails::Railtie
 	# check if schema file exists in config/
 	if File.exists?(schema_path)
           app.config.middleware.use Committee::Middleware::RequestValidation,
-            strict_reference_validation: false,
             schema_path: schema_path,
             coerce_date_times: true,
             params_key: 'action_dispatch.request.request_parameters',
