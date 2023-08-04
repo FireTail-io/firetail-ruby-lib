@@ -1,6 +1,6 @@
 # Firetail
 
-Welcome to Firetail Ruby gem. Before we start, ensure that your ruby version is 2.7 and greater. We do not support ruby less than 2.7.
+Welcome to the Firetail Ruby gem. Before we start, ensure that your ruby version is 2.7 or greater. We do not support ruby versions lower than 2.7.
 
 ## Installation
 
@@ -14,7 +14,7 @@ And then execute:
 
     $ bundle install
 
-Or install it yourself as:
+Or install it yourself with:
 
     $ gem install firetail
 
@@ -22,11 +22,11 @@ Finally, if you are using Rails, run:
 
     $ rails g firetail:install
 
-This will configure your Rails app to use Firetail gem as middleware and generate configuration and json schema template.
+This will configure your Rails app to use the Firetail gem as middleware, and generate configuration and json schema templates.
 
 ## Usage
 
-1. Setup your Firetail key and Firetail backend URL by setting the environment variable `FIRETAIL_API_KEY` and `FIRETAIL_URL`
+1. Setup your Firetail key and Firetail backend URL by setting the environment variables `FIRETAIL_API_KEY` and `FIRETAIL_URL`
 2. Update `config/schema.json` to match your API endpoints.
 3. That's it! Happy coding!
 
