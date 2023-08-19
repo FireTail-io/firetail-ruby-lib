@@ -131,7 +131,7 @@ GEM
     openapi_parser_firetail (1.0.0)
       jwt (~> 2.5)
     public_suffix (5.0.3)
-    puma (5.6.6)
+    puma (5.6.7)
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.7)
@@ -218,7 +218,7 @@ DEPENDENCIES
   byebug
   firetail (~> 0.0.1.pre.alpha)
   listen (~> 3.3)
-  puma (~> 5.0)
+  puma (~> 5.6)
   rails (~> 6.1.7, >= 6.1.7.4)
   rspec (= 3.12)
   rspec-rails
