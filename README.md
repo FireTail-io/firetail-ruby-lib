@@ -12,11 +12,17 @@ gem 'firetail'
 
 And then execute:
 
-    $ bundle install
+    $ `bundle install`
 
 Or install it yourself with:
 
-    $ gem install firetail
+    $ `gem install firetail`
+
+Finally, if you are using Rails, run:
+
+    $ `rails g firetail:install`
+
+This will configure your Rails app to use Firetail gem as middleware and generate configuration and json schema template.
 
 Finally, if you are using Rails, run:
 
@@ -26,9 +32,11 @@ This will configure your Rails app to use the Firetail gem as middleware, and ge
 
 ## Usage
 
-1. Setup your Firetail key and Firetail backend URL by setting the environment variables `FIRETAIL_API_KEY` and `FIRETAIL_URL`
-2. Update `config/schema.json` to match your API endpoints.
-3. That's it! Happy coding!
+1. Setup your Firetail key by setting environment variable `FIRETAIL_API_KEY`
+2. Setup Firetail backend URL by setting the environment variable `FIRETAIL_URL`
+**NOTE** For US based customers, use `https://api.logging.us-east-2.prod.us.firetail.app` for `FIRETAIL_URL`. By default `FIRETAIL_URL` uses **EUROPE(EU)** servers.
+3. Update `config/schema.json` to match your API endpoints.
+4. That's it! Happy coding!
 
 ## Development
 
