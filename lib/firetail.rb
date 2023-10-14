@@ -53,7 +53,7 @@ module Firetail
       raise Error.new "API Key is missing from firetail.yml configuration"  if config['api_key'].nil?
 
       @api_key            = config['api_key']
-      @url                = config['url'] ? config['url'] : "https://api.logging.eu-west-1.sandbox.firetail.app/logs/bulk" # default goes to dev
+      @url                = config['url'] ? config['url'] : "https://api.logging.eu-west-1.prod.firetail.app" # default goes to europe
       @log_drains_timeout = config['log_drains_timeout'] ? config['log_drains_timeout'] : 5
       @network_timeout    = config['network_timeout'] ? config['network_timeout'] : 10
       @number_of_retries  = config['number_of_retries'] ? config['number_of_retries'] : 4
