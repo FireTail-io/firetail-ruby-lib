@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    firetail (0.0.0)
+    firetail (0.0.1.pre.alpha)
       async (~> 1.30.3)
       committee_firetail (~> 5.0.0)
       json-schema (~> 3.0.0)
@@ -20,22 +20,24 @@ GEM
       json_schema (~> 0.14, >= 0.14.3)
       openapi_parser_firetail (~> 1.0)
       rack (>= 1.5)
-    console (1.16.2)
+    console (1.19.0)
+      fiber-annotation
       fiber-local
     crack (0.4.5)
       rexml
     diff-lcs (1.5.0)
+    fiber-annotation (0.2.0)
     fiber-local (1.0.0)
     hashdiff (1.0.1)
     json-schema (3.0.0)
       addressable (>= 2.8)
     json_schema (0.21.0)
-    jwt (2.7.0)
-    nio4r (2.5.8)
+    jwt (2.7.1)
+    nio4r (2.5.9)
     openapi_parser_firetail (1.0.0)
       jwt (~> 2.5)
     public_suffix (5.0.1)
-    rack (3.0.4.2)
+    rack (3.0.6.1)
     rake (13.0.6)
     rexml (3.2.5)
     rspec (3.12.0)
@@ -63,7 +65,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.0)
   firetail!
-  rack (~> 3.0.4.2)
+  rack (~> 3.0.6.1)
   rake (~> 13.0)
   rspec (~> 3.0)
   webmock (~> 3.18)
