@@ -10,7 +10,7 @@ class Railtie < Rails::Railtie
         schema_path = File.join(Rails.root, "config/schema.json")
 
 	# check if schema file exists in config/
-	if File.exists?(schema_path)
+	if File.exist?(schema_path)
           app.config.middleware.use Committee::Middleware::RequestValidation,
             schema_path: schema_path,
             coerce_date_times: true,
@@ -22,9 +22,8 @@ class Railtie < Rails::Railtie
           puts "Need schema.json in \"config/\" directory"
           puts "Try re-running \"rails g firetail:install\" again"
         end
-      rescue
-        puts "Need schema.json in \"config/\" directory"
-	puts "Try re-running \"rails g firetail:install\" again"
+      rescue Error => e
+        puts e
       end
     end
 end

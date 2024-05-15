@@ -38,7 +38,7 @@ module Firetail
       if defined?(Rails)
         begin
           default_location = File.join(Rails.root, "config/firetail.yml")
-          config = YAML.load_file(default_location)
+          config = YAML.safe_load(ERB.new(File.read(default_location)).result)
         rescue Errno::ENOENT
           # error message if firetail is not installed
           puts ""
@@ -171,9 +171,6 @@ module Firetail
   	  statusCode: status,
 	  body: body,
           headers: response_headers,
-	},
-	oauth: {
-          subject: subject ? sha1_hash(subject) :  nil,
 	}
       })
       @request.body.rewind

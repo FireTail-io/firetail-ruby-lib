@@ -23,9 +23,6 @@ class Backend
       req.body = payload
       # Create new thread
       Thread.new {
-	Thread.current.report_on_exception = false
-        # Wait for thread completion of thread is not the current thread
-        Thread.list.each{ |t| t.join unless t == Thread.current }
         # Send the request
         request = http.request(req)
       }
