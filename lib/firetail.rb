@@ -154,6 +154,7 @@ module Firetail
       else
         body = body.body
       end
+      
       @reqres.push({
 	version: "1.0.0-alpha",
 	dateCreated: Time.now.utc.to_i,
@@ -171,10 +172,14 @@ module Firetail
   	  statusCode: status,
 	  body: body,
           headers: response_headers,
-	}
-      })
+       },
+       oauth: subject ? {
+         subject: sha1_hash(subject),
+       } : nil,
+      }.compact) # .compact removes keys with nil values, so we avoid sending empty values
       @request.body.rewind
       #Firetail.logger.debug "Request: #{body}"
+      #Firetail.logger.debug "Request: #{@reqres}"
 
       # the time we calculate if request that is
       # buffered max is 120 seconds
