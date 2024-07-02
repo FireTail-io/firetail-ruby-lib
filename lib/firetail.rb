@@ -174,7 +174,7 @@ module Firetail
           headers: response_headers,
        },
        oauth: subject ? {
-         subject: sha1_hash(subject),
+         subject: subject,
        } : nil,
       }.compact) # .compact removes keys with nil values, so we avoid sending empty values
       @request.body.rewind
@@ -216,12 +216,6 @@ module Firetail
       end
     rescue Exception => exception
       Firetail.logger.error(exception.message)
-    end
-
-    def sha1_hash(value)
-      encode_utf8 = value.encode(Encoding::UTF_8)
-      hash = Digest::SHA1.hexdigest(encode_utf8)
-      sha1 = "sha1: #{hash}"
     end
 
     def jwt_decoder(value)

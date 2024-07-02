@@ -99,12 +99,6 @@ RSpec.describe Firetail do
   end
 
   context "backend logic" do
-    it "should be able to generate correct sha1sum string" do
-      api_key = "abc123"
-      hash = @app.sha1_hash(api_key.encode(Encoding::UTF_8))
-      hash_computed = Digest::SHA1.hexdigest(api_key)
-      expect(hash).to eq("sha1: #{hash_computed}")
-    end
 
     it "should be able to correctly run backoff strategy for failure from retries" do
       url = "https://api.logging.eu-west-1.prod.firetail.app/logs/bulk"
